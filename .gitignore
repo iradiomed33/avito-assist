@@ -1,0 +1,20 @@
+# env/secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.sqlite
+*.db
+*.log
+
+# node
+web-ui/node_modules/
+web-ui/dist/
+
+# misc
+.DS_Store

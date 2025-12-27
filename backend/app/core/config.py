@@ -1,0 +1,30 @@
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import AnyHttpUrl
+from typing import List
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    APP_NAME: str = "avito-assist"
+    ENV: str = "dev"
+    BASE_URL: str = "http://localhost:8000"
+
+    DATABASE_URL: str = "sqlite:///./avito_assist.db"
+
+    JWT_SECRET: str
+    JWT_EXPIRE_MIN: int = 43200  # 30 days
+
+    CORS_ORIGINS: str = "http://localhost:5173"
+
+    # future
+    AVITO_CLIENT_ID: str | None = None
+    AVITO_CLIENT_SECRET: str | None = None
+    AVITO_REDIRECT_URL: str | None = None
+
+    PERPLEXITY_API_KEY: str | None = None
+    PERPLEXITY_BASE_URL: str = "https://api.perplexity.ai"
+
+    def cors_origins_list(self) -> List[str]:
+        return [x.strip() for x in self.CORS_ORIGINS.split(",") if x.strip()]
+
+settings = Settings()
