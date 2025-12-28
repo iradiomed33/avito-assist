@@ -1,6 +1,6 @@
-from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt
+from passlib.context import CryptContext
 
 from app.core.config import settings
 
@@ -12,7 +12,7 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, password_hash: str) -> bool:
     return pwd_context.verify(password, password_hash)
 
-def create_access_token(subject: str) -> str:
+def create_access_token(user_id: int) -> str:
     expire = datetime.utcnow() + timedelta(minutes=settings.JWT_EXPIRE_MIN)
-    payload = {"sub": subject, "exp": expire}
+    payload = {"sub": str(user_id), "exp": expire}
     return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")

@@ -1,6 +1,6 @@
+from datetime import datetime
 from sqlalchemy import String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import datetime
 
 from app.db.base import Base
 
@@ -15,5 +15,4 @@ class Project(Base):
     description: Mapped[str] = mapped_column(String(512), default="", nullable=False)
 
     status: Mapped[str] = mapped_column(String(32), default="active", nullable=False)  # active|paused
-
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)

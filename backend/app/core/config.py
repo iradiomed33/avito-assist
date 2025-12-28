@@ -1,9 +1,14 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import AnyHttpUrl
-from typing import List
+
+BASE_DIR = Path(__file__).resolve().parents[3]  # repo root (avito-assist/)
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=str(BASE_DIR / ".env"),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     APP_NAME: str = "avito-assist"
     ENV: str = "dev"
@@ -24,7 +29,15 @@ class Settings(BaseSettings):
     PERPLEXITY_API_KEY: str | None = None
     PERPLEXITY_BASE_URL: str = "https://api.perplexity.ai"
 
-    def cors_origins_list(self) -> List[str]:
+    def cors_origins_list(self) -> list[str]:
         return [x.strip() for x in self.CORS_ORIGINS.split(",") if x.strip()]
+
+    def normalized_database_url(self) -> str:
+        # normalize sqlite relative path to repo root to avoid "cwd surprises"
+        if self.DATABASE_URL.startswith("sqlite:///./"):
+            rel = self.DATABASE_URL.replace("sqlite:///./", "", 1)
+            db_path = (BASE_DIR / rel).resolve()
+            return f"sqlite:///{db_path.as_posix()}"
+        return self.DATABASE_URL
 
 settings = Settings()
