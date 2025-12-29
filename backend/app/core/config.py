@@ -1,6 +1,7 @@
 from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 BASE_DIR = Path(__file__).resolve().parents[3]  # repo root (avito-assist/)
 
 class Settings(BaseSettings):
@@ -22,9 +23,12 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:5173"
 
     # future
-    AVITO_CLIENT_ID: str | None = None
-    AVITO_CLIENT_SECRET: str | None = None
-    AVITO_REDIRECT_URL: str | None = None
+    AVITO_CLIENT_ID: str = ""
+    AVITO_CLIENT_SECRET: str = ""
+    AVITO_REDIRECT_URI: str = "https://ai-dialog-bot.ru/avito/oauth/callback"
+    AVITO_AUTH_URL: str = "https://avito.ru/oauth"
+    AVITO_TOKEN_URL: str = "https://api.avito.ru/token"
+    AVITO_SCOPES: str = "items:info messenger:read messenger:write short_term_rent:read stats:read user:read"
 
     PERPLEXITY_API_KEY: str | None = None
     PERPLEXITY_BASE_URL: str = "https://api.perplexity.ai"
