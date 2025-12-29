@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.db.session import get_db
 from app.models.avito_account import AvitoAccount
 from app.services.avito_oauth import (
@@ -27,7 +27,7 @@ async def avito_oauth_callback(
     code: str | None = Query(default=None),
     state: str | None = Query(default=None),
     error: str | None = Query(default=None),
-    settings: Settings = Depends(Settings),
+    settings: Settings = Depends(get_settings),
     db: Session = Depends(get_db),
 ):
     if error:

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.core.config import Settings
+from app.core.config import Settings, get_settings
 from app.db.session import get_db
 from app.models.avito_account import AvitoAccount
 from app.schemas.avito_account import AvitoAccountOut, AvitoOAuthStartOut
@@ -35,7 +35,7 @@ def avito_oauth_start(
     project_id: int = Query(...),
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
-    settings: Settings = Depends(Settings),
+    settings: Settings = Depends(get_settings),
 ):
     assert_project_access(db, user, project_id)
 
