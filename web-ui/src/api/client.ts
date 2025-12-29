@@ -1,7 +1,15 @@
 const envBase = import.meta.env.VITE_API_BASE;
-// если переменная НЕ задана — используем дефолт для dev
-// если задана (включая пустую строку) — используем её
-const API_BASE = envBase === undefined ? "http://127.0.0.1:8000" : envBase;
+const mode = import.meta.env.MODE;
+
+// В проде по умолчанию работаем same-origin: "/api/.."
+// В деве по умолчанию можно стучаться в локальный backend
+const API_BASE =
+  envBase !== undefined
+    ? envBase
+    : mode === "production"
+      ? ""
+      : "http://127.0.0.1:8000";
+
 
 export function getToken(): string | null {
   return localStorage.getItem("access_token");
