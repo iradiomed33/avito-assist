@@ -11,23 +11,26 @@ from app.services.avito_oauth import create_oauth_state, build_authorize_url
 
 # предполагаю, что у тебя уже есть эти зависимости (как в Sprint 0):
 from app.core.security import get_current_user  # поправишь импорт под свой проект
+from app.models.project import Project
 from app.models.user import User  # поправишь импорт под свой проект
 
 router = APIRouter(prefix="/avito", tags=["avito"])
 
 
-def assert_project_access(db: Session, user: User, project_id: int) -> None:
-    # Минимально: если у тебя уже есть project_members — проверь членство.
-    # Подстрой под свою схему (мы это делали в Sprint 0).
-    from app.models.project_member import ProjectMember  # если у тебя так называется
+def assert_project_access(db: Session, user: User, project_id: int) -> Project:
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
 
-    m = (
-        db.query(ProjectMember)
-        .filter(ProjectMember.project_id == project_id, ProjectMember.user_id == user.id)
-        .first()
-    )
-    if not m:
+    # admin видит всё
+    if getattr(user, "role", None) == "admin":
+        return project
+
+    # обычный пользователь — только свои проекты
+    if project.owner_user_id != user.id:
         raise HTTPException(status_code=403, detail="No access to project")
+
+    return project
 
 
 @router.get("/oauth/start", response_model=AvitoOAuthStartOut)

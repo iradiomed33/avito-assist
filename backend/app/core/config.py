@@ -45,7 +45,6 @@ class Settings(BaseSettings):
         return self.DATABASE_URL
 
 settings = Settings()
-settings = Settings()
 
 def get_settings() -> Settings:
     return settings

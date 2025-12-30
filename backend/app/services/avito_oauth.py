@@ -24,12 +24,12 @@ def create_oauth_state(settings: Settings, user_id: int, project_id: int) -> str
         "iat": int(_now_utc().timestamp()),
     }
     # Используем тот же секрет, что и JWT (предполагаю, он уже есть в Settings как SECRET_KEY)
-    return jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
+    return jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
 
 
 def verify_oauth_state(settings: Settings, state: str) -> dict:
     try:
-        payload = jwt.decode(state, settings.SECRET_KEY, algorithms=["HS256"])
+        payload = jwt.decode(state, settings.JWT_SECRET, algorithms=["HS256"])
     except JWTError as e:
         raise ValueError("Invalid state") from e
 
@@ -61,6 +61,7 @@ async def exchange_code_for_token(settings: Settings, code: str) -> dict:
         "client_id": settings.AVITO_CLIENT_ID,
         "client_secret": settings.AVITO_CLIENT_SECRET,
         "code": code,
+        "redirect_uri": settings.AVITO_REDIRECT_URI,
     }
 
     async with httpx.AsyncClient(timeout=20) as client:
