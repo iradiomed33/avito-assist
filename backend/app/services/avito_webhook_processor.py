@@ -5,7 +5,7 @@ from app.core.config import settings
 from app.db.session import SessionLocal
 from app.models.avito_account import AvitoAccount  # поправь импорт под свой проект
 from app.models.avito_chat_state import AvitoChatState
-from app.services.avito_messenger import AvitoMessengerClient
+from app.services.avito_messenger_client import AvitoMessengerClient
 
 
 def _find_chat_id(payload: Any) -> Optional[str]:
