@@ -1,6 +1,6 @@
 import secrets
 from datetime import datetime, timedelta, timezone
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote
 
 import httpx
 from jose import jwt, JWTError
@@ -42,16 +42,20 @@ def verify_oauth_state(settings: Settings, state: str) -> dict:
     return payload
 
 
-def build_authorize_url(settings: Settings, state: str) -> str:
-    # Avito OAuth endpoint: https://avito.ru/oauth :contentReference[oaicite:5]{index=5}
-    params = {
-        "response_type": "code",
-        "client_id": settings.AVITO_CLIENT_ID,
-        "redirect_uri": settings.AVITO_REDIRECT_URI,
-        "scope": settings.AVITO_SCOPES,
-        "state": state,
-    }
-    return f"{settings.AVITO_AUTH_URL}?{urlencode(params)}"
+def build_authorize_url(settings, state: str) -> str:
+    # Avito в доке показывает scopes через запятую без пробелов
+    raw = settings.AVITO_SCOPES or ""
+    parts = [p.strip() for p in raw.replace(" ", ",").split(",") if p.strip()]
+    scope = ",".join(parts)
+
+    # В примере Авито redirect_uri не передают (используется Redirect URI из кабинета)
+    return (
+        f"{settings.AVITO_AUTH_URL}"
+        f"?response_type=code"
+        f"&client_id={quote(settings.AVITO_CLIENT_ID)}"
+        f"&scope={quote(scope, safe=':,')}"
+        f"&state={quote(state)}"
+    )
 
 
 async def exchange_code_for_token(settings: Settings, code: str) -> dict:
