@@ -97,7 +97,16 @@ async def avito_oauth_callback(
         status_code=200,
     )
 
+def _dedup_key(raw: bytes, payload: dict) -> str:
+    # если в payload есть явный id — используем его
+    for k in ("event_id", "eventId", "id", "message_id", "messageId"):
+        v = payload.get(k)
+        if v is not None:
+            return str(v)
 
+    # иначе — стабильный хэш тела запроса
+    return hashlib.sha256(raw).hexdigest()
+    
 @router.post("/webhook")
 async def avito_webhook(
     request: Request,
