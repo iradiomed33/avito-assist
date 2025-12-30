@@ -32,7 +32,7 @@ async def avito_oauth_callback(
     code: str | None = Query(default=None),
     state: str | None = Query(default=None),
     error: str | None = Query(default=None),
-    settings: Settings = Depends(get_settings),
+    settings: settings = Depends(get_settings),
     db: Session = Depends(get_db),
 ):
     if error:
