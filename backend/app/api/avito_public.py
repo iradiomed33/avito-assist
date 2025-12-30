@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.core.config import Settings, get_settings
+from app.core.config import settings, get_settings
 from app.db.session import get_db
 from app.models.avito_account import AvitoAccount
 from app.services.avito_oauth import (
