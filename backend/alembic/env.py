@@ -2,6 +2,12 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
+import sys
+from pathlib import Path
+
+BACKEND_DIR = Path(__file__).resolve().parents[1]  # .../backend
+sys.path.insert(0, str(BACKEND_DIR))
+
 from app.core.config import settings
 from app.db.base import Base
 
