@@ -13,16 +13,14 @@ from app.db.base import Base
 
 # IMPORTANT: импортируем модели, чтобы Alembic видел metadata
 # импортируем классы моделей напрямую, чтобы избежать сюрпризов от app.models.__init__
-from app.models.user import User  # noqa: F401
-from app.models.project import Project  # noqa: F401
-from app.models.avito_account import AvitoAccount  # noqa: F401
-from app.models.avito_webhook_event import AvitoWebhookEvent  # noqa: F401
+import app.models  # noqa
+Base.metadata.create_all(bind=engine)
 
 
 config = context.config
 fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+
 
 def get_url() -> str:
     return settings.normalized_database_url()

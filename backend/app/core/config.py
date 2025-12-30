@@ -33,6 +33,11 @@ class Settings(BaseSettings):
     PUBLIC_BASE_URL: str = "http://localhost:8000"
     AVITO_WEBHOOK_TOKEN: str = ""
 
+    AVITO_AUTOREPLY_ENABLED: bool = False
+    AVITO_AUTOREPLY_TEXT: str = "Здравствуйте! Сообщение получил. Сейчас уточню детали и отвечу."
+    AVITO_AUTOREPLY_ONLY_IF_INBOUND: bool = True
+
+
     PERPLEXITY_API_KEY: str | None = None
     PERPLEXITY_BASE_URL: str = "https://api.perplexity.ai"
 

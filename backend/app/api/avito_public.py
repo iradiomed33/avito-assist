@@ -18,6 +18,10 @@ from app.services.avito_oauth import (
 
 from app.models.avito_webhook_event import AvitoWebhookEvent
 
+from fastapi import BackgroundTasks
+from app.services.avito_webhook_processor import process_incoming_webhook
+
+
 router = APIRouter(tags=["avito-public"])
 
 
@@ -141,4 +145,5 @@ async def avito_webhook(
 
     # ВАЖНО: тяжёлую обработку потом. Сейчас — только сохранили и быстро ответили.
     # background_tasks.add_task(...) подключим на Sprint 2 (обработчик/бот-логика)
+    background_tasks.add_task(process_incoming_webhook, account_id, payload)
     return {"ok": True, "id": event.id}
