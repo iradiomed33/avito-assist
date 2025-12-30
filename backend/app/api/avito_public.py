@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta, timezone
+import hashlib
+import json
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, BackgroundTasks
 from fastapi.responses import HTMLResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.config import Settings, get_settings
@@ -12,6 +15,8 @@ from app.services.avito_oauth import (
     exchange_code_for_token,
     fetch_avito_account_self,
 )
+
+from app.models.avito_webhook_event import AvitoWebhookEvent
 
 router = APIRouter(tags=["avito-public"])
 
@@ -87,3 +92,53 @@ async def avito_oauth_callback(
         "<p>Токены сохранены. Окно можно закрыть.</p>",
         status_code=200,
     )
+
+
+@router.post("/webhook")
+async def avito_webhook(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    t: str | None = None,
+    project_id: int | None = None,
+    account_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    # защита от сканеров/ботов
+    if settings.AVITO_WEBHOOK_TOKEN:
+        if not t or t != settings.AVITO_WEBHOOK_TOKEN:
+            raise HTTPException(status_code=401, detail="invalid webhook token")
+
+    raw = await request.body()
+
+    # Avito при регистрации может стучаться с пустым/{} — обязаны быстро ответить 200
+    if not raw or raw.strip() in (b"{}", b"[]"):
+        return {"ok": True}
+
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+        if not isinstance(payload, dict):
+            payload = {"_raw": payload}
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid json")
+
+    event = AvitoWebhookEvent(
+        project_id=project_id,
+        avito_account_id=account_id,
+        event_type=str(payload.get("type") or payload.get("event_type") or ""),
+        dedup_key=_dedup_key(raw, payload),
+        payload_json=json.dumps(payload, ensure_ascii=False),
+        status="new",
+    )
+
+    try:
+        db.add(event)
+        db.commit()
+        db.refresh(event)
+    except IntegrityError:
+        db.rollback()
+        # дубликат — всё равно 200, чтобы Avito не ретраил
+        return {"ok": True, "duplicate": True}
+
+    # ВАЖНО: тяжёлую обработку потом. Сейчас — только сохранили и быстро ответили.
+    # background_tasks.add_task(...) подключим на Sprint 2 (обработчик/бот-логика)
+    return {"ok": True, "id": event.id}

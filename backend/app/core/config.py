@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     AVITO_TOKEN_URL: str = "https://api.avito.ru/token"
     AVITO_SCOPES: str = "items:info messenger:read messenger:write short_term_rent:read stats:read user:read"
 
+    PUBLIC_BASE_URL: str = "http://localhost:8000"
+    AVITO_WEBHOOK_TOKEN: str = ""
+
     PERPLEXITY_API_KEY: str | None = None
     PERPLEXITY_BASE_URL: str = "https://api.perplexity.ai"
 
