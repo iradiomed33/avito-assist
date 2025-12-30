@@ -14,11 +14,14 @@ from app.db.base import Base
 # IMPORTANT: импортируем модели, чтобы Alembic видел metadata
 # импортируем классы моделей напрямую, чтобы избежать сюрпризов от app.models.__init__
 import app.models  # noqa
-Base.metadata.create_all(bind=engine)
 
 
 config = context.config
-fileConfig(config.config_file_name)
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
+target_metadata = Base.metadata
 
 
 
